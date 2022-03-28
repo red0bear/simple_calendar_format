@@ -40,13 +40,7 @@ public class simple_calendar_format {
     public void set_timezone_calendar_EST()
     {
         timezone ="EST";
-    }  
-    
-    public long get_time_now()
-    {
-        date = Calendar.getInstance(TimeZone.getTimeZone(timezone));
-        return date.getTimeInMillis();
-    }
+    }    
     
     public int get_number_of_days(int year,int month)
     {
@@ -132,8 +126,47 @@ public class simple_calendar_format {
         date.setTimeInMillis(value*1000);
         
         return date.getActualMaximum(Calendar.WEEK_OF_MONTH);
-    }         
+    }     
+
+    public long get_time_now()
+    {
+        return Calendar.getInstance().getTime().getTime();
+    }
+
+    /*
+        Adapted to my idea :-)
+        https://stackoverflow.com/questions/20165564/calculating-days-between-two-dates-with-java
+    */
+    public boolean is_expired(long start, int dayspaid){
+        Calendar dayOne = Calendar.getInstance(),
+                dayTwo = Calendar.getInstance();
+
+        dayOne.setTimeInMillis(start);
         
+        if (dayOne.get(Calendar.YEAR) == dayTwo.get(Calendar.YEAR)) {
+            return (Math.abs(dayOne.get(Calendar.DAY_OF_YEAR) - dayTwo.get(Calendar.DAY_OF_YEAR)) > dayspaid);
+        } else {
+            if (dayTwo.get(Calendar.YEAR) > dayOne.get(Calendar.YEAR)) {
+                //swap them
+                Calendar temp = dayOne;
+                dayOne = dayTwo;
+                dayTwo = temp;
+            }
+            int extraDays = 0;
+
+            int dayOneOriginalYearDays = dayOne.get(Calendar.DAY_OF_YEAR);
+
+            while (dayOne.get(Calendar.YEAR) > dayTwo.get(Calendar.YEAR)) {
+                dayOne.add(Calendar.YEAR, -1);
+                // getActualMaximum() important for leap years
+                extraDays += dayOne.getActualMaximum(Calendar.DAY_OF_YEAR);
+            }
+
+            return ((extraDays - dayTwo.get(Calendar.DAY_OF_YEAR) + dayOneOriginalYearDays) > dayspaid) ;
+        }
+    }  
+    
+    
     public String get_format_date(long value)
     {
         date = Calendar.getInstance(TimeZone.getTimeZone(timezone));
@@ -159,5 +192,5 @@ public class simple_calendar_format {
         formatter_ff.setTimeZone(TimeZone.getTimeZone(timezone));
         
         return formatter_ff.format(date.getTime());
-    }      
+    }     
 }
